@@ -54,13 +54,37 @@ def init_runner():
     )
     return runner
 
+import logging
+
+class StreamlitLogHandler(logging.Handler):
+    def __init__(self, log_placeholder):
+        super().__init__()
+        self.log_placeholder = log_placeholder
+        self.logs = []
+        
+    def emit(self, record):
+        try:
+            msg = self.format(record)
+            self.logs.append(msg)
+            # Only keep the last 20 logs to avoid overwhelming the UI
+            display_text = "\n".join(self.logs[-20:])
+            self.log_placeholder.code(display_text, language="log")
+        except Exception:
+            self.handleError(record)
+
 # Input form
 query = st.text_input("Enter your research topic:", placeholder="e.g., solid state batteries for EVs")
+log_container = st.empty()
 
 if st.button("Start Analysis"):
     if not query:
         st.warning("Please enter a research topic.")
     else:
+        # Set up UI logging
+        log_handler = StreamlitLogHandler(log_container)
+        log_handler.setFormatter(logging.Formatter('%(asctime)s | %(levelname)-8s | %(name)-20s | %(message)s'))
+        logging.getLogger().addHandler(log_handler)
+        
         runner = init_runner()
         if runner:
             with st.spinner("Executing Research Pipeline (USPTO -> Web -> Analysis)..."):
