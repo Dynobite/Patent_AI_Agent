@@ -136,6 +136,9 @@ class ObservabilityPlugin(BasePlugin):
     async def before_agent_callback(
         self, *, agent: BaseAgent, callback_context: CallbackContext
     ) -> None:
+        # 🛑 ARTIFICIAL DELAY: Prevent Gemini Free-Tier 429 Quota errors
+        time.sleep(5)
+        
         self.agent_count += 1
         agent_name = agent.name if hasattr(agent, 'name') else agent.__class__.__name__
         self.logger.info(f"[Plugin] Agent #{self.agent_count}: {agent_name} starting...")
