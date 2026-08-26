@@ -6,7 +6,7 @@ from typing import Dict, Any
 
 from google.adk.agents import LlmAgent
 from google.adk.tools import FunctionTool
-from patentflow.core.metrics import metrics, ToolMetrics
+from ..core.metrics import metrics, ToolMetrics
 
 def search_uspto_patents(query: str) -> dict:
     """

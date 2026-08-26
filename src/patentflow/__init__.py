@@ -28,7 +28,7 @@ root_agent = create_orchestration_pipeline(
 # Export the App object for agents-cli
 app = App(
     root_agent=root_agent,
-    name="src/patentflow", # Must match directory name per ADK scaffolding rules
+    name="patentflow", # Must match directory name per ADK scaffolding rules
 )
 
 __all__ = ["app"]
