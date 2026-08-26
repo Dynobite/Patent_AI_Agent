@@ -42,19 +42,18 @@ async def run_research(user_query: str):
         os.environ["GOOGLE_API_KEY"] = api_key
 
         retry_config = types.HttpRetryOptions(attempts=3, exp_base=2, initial_delay=1)
-        model_3_5 = Gemini(model="gemini-3.5-flash-lite", retry_options=retry_config)
-        model_3_1 = Gemini(model="gemini-3.1-flash-lite", retry_options=retry_config)
+        model = Gemini(model="gemini-3.5-flash-lite", retry_options=retry_config)
 
-        # 1. Initialize Source Agents with different models to bypass concurrency limits
-        uspto_agent = create_uspto_agent(model_3_5)
-        google_agent = create_google_search_agent(model_3_1)
+        # 1. Initialize Source Agents
+        uspto_agent = create_uspto_agent(model)
+        google_agent = create_google_search_agent(model)
 
         # 2. Initialize Analysis Agent
-        analysis_agent = create_analysis_agent(model_3_5)
+        analysis_agent = create_analysis_agent(model)
 
         # 3. Create Orchestration Pipeline
         root_agent = create_orchestration_pipeline(
-            model=model_3_5, 
+            model=model, 
             source_agents=[uspto_agent, google_agent], 
             analysis_agent=analysis_agent
         )

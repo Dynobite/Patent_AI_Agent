@@ -34,16 +34,15 @@ def init_runner():
     retry_config = types.HttpRetryOptions(attempts=3, exp_base=2, initial_delay=1)
     
     # Initialize Models
-    model_3_5 = Gemini(model="gemini-3.5-flash-lite", retry_options=retry_config)
-    model_3_1 = Gemini(model="gemini-3.1-flash-lite", retry_options=retry_config)
+    model = Gemini(model="gemini-3.5-flash-lite", retry_options=retry_config)
 
     # Setup Agents
-    uspto_agent = create_uspto_agent(model_3_5)
-    google_agent = create_google_search_agent(model_3_1)
-    analysis_agent = create_analysis_agent(model_3_5)
+    uspto_agent = create_uspto_agent(model)
+    google_agent = create_google_search_agent(model)
+    analysis_agent = create_analysis_agent(model)
 
     root_agent = create_orchestration_pipeline(
-        model=model_3_5,
+        model=model,
         source_agents=[uspto_agent, google_agent],
         analysis_agent=analysis_agent
     )
