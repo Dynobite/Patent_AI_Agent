@@ -154,8 +154,12 @@ class ObservabilityPlugin(BasePlugin):
     async def before_model_callback(
         self, *, callback_context: CallbackContext, llm_request: LlmRequest
     ) -> None:
+        # 🛑 STRICT THROTTLING: Enforce max 10 RPM (6s delay between LLM calls) to respect Gemini Free-Tier 15 RPM limit
+        import asyncio
+        await asyncio.sleep(6)
+        
         self.llm_request_count += 1
-        self.logger.debug(f"[Plugin] LLM request #{self.llm_request_count}")
+        self.logger.info(f"[Plugin] Throttled LLM request #{self.llm_request_count} (pacing 6s for rate limits)")
     
     def get_summary(self) -> Dict[str, int]:
         return {
