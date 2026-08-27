@@ -1,0 +1,463 @@
+openapi: 3.0.1
+info:
+  title: USPTO Open Data Portal Bulk Datasets Patent Search API
+  description: The USPTO Open Data Portal (ODP) API allows public users to discover, search, and extract USPTO patent, trademark, PTAB trial, petition decision, and bulk dataset data at no cost. An ODP API key is required, passed via the X-API-KEY request header.
+  version: 1.0.0
+  contact:
+    name: USPTO
+    email: data@uspto.gov
+    url: https://data.uspto.gov/apis/getting-started
+  x-source-url: https://data.uspto.gov/swagger/swagger.yaml
+servers:
+- url: https://api.uspto.gov
+security:
+- ApiKeyAuth: []
+tags:
+- name: Patent Search
+  description: Search and retrieve patent application data
+paths:
+  /api/v1/patent/applications/search:
+    post:
+      tags:
+      - Patent Search
+      operationId: searchPatentApplicationsPost
+      summary: Search Patent Applications by JSON Payload
+      description: Search patent applications by supplying a JSON request payload with optional query fields, date filters, and pagination options.
+      requestBody:
+        description: Patent search request payload. All fields are optional.
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/PatentSearchRequest'
+      responses:
+        '200':
+          description: Successful patent search response
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/PatentDataResponse'
+        '400':
+          description: Bad Request
+        '403':
+          description: Forbidden
+        '404':
+          description: Not Found
+        '500':
+          description: Internal Server Error
+    get:
+      tags:
+      - Patent Search
+      operationId: searchPatentApplicationsGet
+      summary: Search Patent Applications by Query Parameters
+      description: Search patent applications using query parameters. When no parameters are supplied, the top 25 applications are returned.
+      parameters:
+      - name: q
+        in: query
+        description: Search query string supporting boolean operators (AND, OR, NOT), wildcards (*), and exact phrases ("").
+        schema:
+          type: string
+      - name: dateRangeData.startDate
+        in: query
+        description: Start date for date range filter (YYYY-MM-DD)
+        schema:
+          type: string
+          format: date
+      - name: dateRangeData.endDate
+        in: query
+        description: End date for date range filter (YYYY-MM-DD)
+        schema:
+          type: string
+          format: date
+      - name: start
+        in: query
+        description: Pagination start offset
+        schema:
+          type: integer
+          default: 0
+      - name: rows
+        in: query
+        description: Number of rows to return (max 25)
+        schema:
+          type: integer
+          default: 25
+          maximum: 25
+      responses:
+        '200':
+          description: Successful patent search response
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/PatentDataResponse'
+        '400':
+          description: Bad Request
+        '403':
+          description: Forbidden
+        '404':
+          description: Not Found
+        '500':
+          description: Internal Server Error
+  /api/v1/patent/applications/search/download:
+    post:
+      tags:
+      - Patent Search
+      operationId: downloadPatentApplicationsSearch
+      summary: Download Patent Application Search Results
+      description: Download a bulk export of patent application search results.
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/PatentSearchRequest'
+      responses:
+        '200':
+          description: Download initiated
+        '400':
+          description: Bad Request
+        '403':
+          description: Forbidden
+  /api/v1/patent/applications/{applicationNumberText}:
+    get:
+      tags:
+      - Patent Search
+      operationId: getPatentApplication
+      summary: Get Patent Application by Application Number
+      description: Retrieve full details for a specific patent application.
+      parameters:
+      - name: applicationNumberText
+        in: path
+        required: true
+        description: Patent application number (e.g., 14412875)
+        schema:
+          type: string
+      responses:
+        '200':
+          description: Patent application details
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/PatentApplicationData'
+        '403':
+          description: Forbidden
+        '404':
+          description: Not Found
+  /api/v1/patent/applications/{applicationNumberText}/meta-data:
+    get:
+      tags:
+      - Patent Search
+      operationId: getPatentApplicationMetaData
+      summary: Get Patent Application Metadata
+      description: Retrieve metadata for a specific patent application.
+      parameters:
+      - name: applicationNumberText
+        in: path
+        required: true
+        schema:
+          type: string
+      responses:
+        '200':
+          description: Patent application metadata
+          content:
+            application/json:
+              schema:
+                type: object
+        '403':
+          description: Forbidden
+        '404':
+          description: Not Found
+  /api/v1/patent/applications/{applicationNumberText}/adjustment:
+    get:
+      tags:
+      - Patent Search
+      operationId: getPatentApplicationAdjustment
+      summary: Get Patent Application Patent Term Adjustment
+      parameters:
+      - name: applicationNumberText
+        in: path
+        required: true
+        schema:
+          type: string
+      responses:
+        '200':
+          description: Patent term adjustment information
+          content:
+            application/json:
+              schema:
+                type: object
+        '404':
+          description: Not Found
+  /api/v1/patent/applications/{applicationNumberText}/assignment:
+    get:
+      tags:
+      - Patent Search
+      operationId: getPatentApplicationAssignment
+      summary: Get Patent Application Assignment Data
+      parameters:
+      - name: applicationNumberText
+        in: path
+        required: true
+        schema:
+          type: string
+      responses:
+        '200':
+          description: Assignment data
+          content:
+            application/json:
+              schema:
+                type: object
+        '404':
+          description: Not Found
+  /api/v1/patent/applications/{applicationNumberText}/attorney:
+    get:
+      tags:
+      - Patent Search
+      operationId: getPatentApplicationAttorney
+      summary: Get Patent Application Attorney Information
+      parameters:
+      - name: applicationNumberText
+        in: path
+        required: true
+        schema:
+          type: string
+      responses:
+        '200':
+          description: Attorney information
+          content:
+            application/json:
+              schema:
+                type: object
+        '404':
+          description: Not Found
+  /api/v1/patent/applications/{applicationNumberText}/continuity:
+    get:
+      tags:
+      - Patent Search
+      operationId: getPatentApplicationContinuity
+      summary: Get Patent Application Continuity Data
+      parameters:
+      - name: applicationNumberText
+        in: path
+        required: true
+        schema:
+          type: string
+      responses:
+        '200':
+          description: Continuity data
+          content:
+            application/json:
+              schema:
+                type: object
+        '404':
+          description: Not Found
+  /api/v1/patent/applications/{applicationNumberText}/foreign-priority:
+    get:
+      tags:
+      - Patent Search
+      operationId: getPatentApplicationForeignPriority
+      summary: Get Patent Application Foreign Priority
+      parameters:
+      - name: applicationNumberText
+        in: path
+        required: true
+        schema:
+          type: string
+      responses:
+        '200':
+          description: Foreign priority data
+          content:
+            application/json:
+              schema:
+                type: object
+        '404':
+          description: Not Found
+  /api/v1/patent/applications/{applicationNumberText}/transactions:
+    get:
+      tags:
+      - Patent Search
+      operationId: getPatentApplicationTransactions
+      summary: Get Patent Application Transaction History
+      parameters:
+      - name: applicationNumberText
+        in: path
+        required: true
+        schema:
+          type: string
+      responses:
+        '200':
+          description: Transaction history
+          content:
+            application/json:
+              schema:
+                type: object
+        '404':
+          description: Not Found
+  /api/v1/patent/applications/{applicationNumberText}/documents:
+    get:
+      tags:
+      - Patent Search
+      operationId: getPatentApplicationDocuments
+      summary: Get Patent Application Documents
+      parameters:
+      - name: applicationNumberText
+        in: path
+        required: true
+        schema:
+          type: string
+      responses:
+        '200':
+          description: Document list
+          content:
+            application/json:
+              schema:
+                type: object
+        '404':
+          description: Not Found
+  /api/v1/patent/status-codes:
+    get:
+      tags:
+      - Patent Search
+      operationId: getPatentStatusCodes
+      summary: Get Patent Application Status Codes
+      description: Retrieve the list of all patent application status codes and their descriptions.
+      responses:
+        '200':
+          description: Status codes list
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  type: object
+components:
+  schemas:
+    PatentDataResponse:
+      type: object
+      description: Response from patent application search
+      properties:
+        count:
+          type: integer
+          description: Total number of matching records
+        patents:
+          type: array
+          items:
+            $ref: '#/components/schemas/PatentApplicationData'
+        requestIdentifier:
+          type: string
+          description: Unique request identifier for support
+    PatentSearchRequest:
+      type: object
+      description: Request body for patent application search
+      properties:
+        q:
+          type: string
+          description: Search query string with boolean operator support
+        dateRangeData:
+          type: object
+          properties:
+            startDate:
+              type: string
+              format: date
+              description: Start date for filtering (YYYY-MM-DD)
+            endDate:
+              type: string
+              format: date
+              description: End date for filtering (YYYY-MM-DD)
+            fieldName:
+              type: string
+              description: Field to apply the date filter to
+        start:
+          type: integer
+          description: Pagination offset
+          default: 0
+        rows:
+          type: integer
+          description: Number of results (max 25)
+          default: 25
+          maximum: 25
+        sort:
+          type: string
+          description: Sort field and direction (e.g., "applicationFilingDate desc")
+        fields:
+          type: array
+          items:
+            type: string
+          description: Specific fields to return
+    PatentApplicationData:
+      type: object
+      description: Patent application record
+      properties:
+        applicationNumberText:
+          type: string
+          description: Patent application number
+        applicationTypeLabelName:
+          type: string
+          description: Type of patent application (Utility, Design, Plant, etc.)
+        applicationStatusCode:
+          type: string
+          description: Current status code
+        applicationStatusDate:
+          type: string
+          format: date
+          description: Date of current status
+        applicationFilingDate:
+          type: string
+          format: date
+          description: Date application was filed
+        grantDate:
+          type: string
+          format: date
+          description: Date patent was granted (if granted)
+        patentNumber:
+          type: string
+          description: Issued patent number
+        inventionTitle:
+          type: string
+          description: Title of the invention
+        inventors:
+          type: array
+          items:
+            type: object
+            properties:
+              inventorNameText:
+                type: string
+              inventorCity:
+                type: string
+              inventorStateCode:
+                type: string
+              inventorCountryCode:
+                type: string
+        applicants:
+          type: array
+          items:
+            type: object
+            properties:
+              applicantNameText:
+                type: string
+              applicantCity:
+                type: string
+              applicantStateCode:
+                type: string
+              applicantCountryCode:
+                type: string
+        attorneys:
+          type: array
+          items:
+            type: object
+            properties:
+              registrationNumber:
+                type: string
+              fullName:
+                type: string
+        classifications:
+          type: array
+          items:
+            type: object
+            properties:
+              classificationSymbolText:
+                type: string
+              uspcSymbolText:
+                type: string
+  securitySchemes:
+    ApiKeyAuth:
+      type: apiKey
+      in: header
+      name: X-API-KEY
