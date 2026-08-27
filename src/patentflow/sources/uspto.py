@@ -6,21 +6,27 @@ from google.adk.tools import google_search
 def create_uspto_agent(model) -> LlmAgent:
     """
     Creates a Patent Search Agent that uses Gemini's built-in Google Search tool
-    specifically targeted at Google Patents (site:patents.google.com).
-    
-    This requires ZERO external API keys or complex USPTO authentication!
+    specifically targeted at Google Patents (site:patents.google.com) to retrieve
+    Patent Titles, Abstracts, AND Independent Claims (Claim 1).
     """
     return LlmAgent(
         name="USPTOSearchAgent",
         model=model,
-        instruction="""You are a specialized Patent Search agent.
+        instruction="""You are a specialized Patent Search agent focused on patent structure and legal scope.
 
 TASK:
 1. Search for official patents regarding the user's query by calling `google_search`.
-2. Format your search query to target Google Patents, for example:
-   `site:patents.google.com "your query terms"` or `site:patents.google.com/patent "your query terms"`
-3. Retrieve patent numbers, titles, filing dates, and abstracts from the search results.
-4. Return a structured list of the top 3-5 patents found.
+2. Format your search queries to target Google Patents, specifically searching for the Abstract AND Independent Claims (Claim 1).
+   Examples of queries to execute:
+   - `site:patents.google.com "your query terms" "Claim 1"`
+   - `site:patents.google.com/patent "your query terms" "What is claimed is"`
+3. For each patent identified, extract:
+   - Patent / Publication Number (e.g. US11122233B2)
+   - Patent Title
+   - Filing / Issue Date
+   - Abstract Summary
+   - **Independent Claim 1 (or core scope of what is claimed)**
+4. Return a structured list of the top 3-5 patents found, explicitly including the Claim 1 summary for each.
 
 FORBIDDEN:
 - Do NOT transfer control
