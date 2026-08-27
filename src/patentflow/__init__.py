@@ -10,7 +10,7 @@ from .agents.orchestration import create_orchestration_pipeline
 import os
 
 # Initialize models
-retry_config = types.HttpRetryOptions(attempts=3, exp_base=2, initial_delay=1)
+retry_config = types.HttpRetryOptions(attempts=10, exp_base=2, initial_delay=10)
 model = Gemini(model="gemini-3.5-flash-lite", retry_options=retry_config)
 
 # Initialize Agents
