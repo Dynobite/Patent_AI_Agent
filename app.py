@@ -31,7 +31,8 @@ def init_runner():
         return None
 
     os.environ["GOOGLE_API_KEY"] = api_key
-    retry_config = types.HttpRetryOptions(attempts=3, exp_base=2, initial_delay=1)
+    # Configure aggressive HTTP retry options to handle Gemini Free Tier 429 rate limits seamlessly
+    retry_config = types.HttpRetryOptions(attempts=10, exp_base=2, initial_delay=10)
     
     # Initialize Models
     model = Gemini(model="gemini-3.5-flash-lite", retry_options=retry_config)
